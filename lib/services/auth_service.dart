@@ -16,7 +16,7 @@ class AuthService {
         final data = jsonDecode(response.body);
         return data["token"]; // Extrae solo el token
       } else {
-        print("Error en login: ${response.body}"); // Muestra el error en consola
+        print("Error en login: ${response.body}"); 
         return null; 
       }
     } catch (e) {

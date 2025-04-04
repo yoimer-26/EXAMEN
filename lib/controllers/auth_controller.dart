@@ -10,7 +10,7 @@ class AuthController extends ChangeNotifier {
 
   Future<bool> login(String username, String password) async {
     _isLoading = true;
-    notifyListeners(); // actualiza la UI
+    notifyListeners(); 
 
     final response = await AuthService.login(username, password);
 
