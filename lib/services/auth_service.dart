@@ -2,20 +2,26 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  final String _url = "https://carros-electricos.wiremockapi.cloud/auth";
+  static const String _url = "https://carros-electricos.wiremockapi.cloud/auth";
 
-  Future<String?> login(String username, String password) async {
-    final response = await http.post(
-      Uri.parse(_url),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"username": username, "password": password}),
-    );
+  static Future<String?> login(String username, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse(_url),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"username": username, "password": password}),
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data["token"]; 
-    } else {
-      return null; 
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data["token"]; // Extrae solo el token
+      } else {
+        print("Error en login: ${response.body}"); // Muestra el error en consola
+        return null; 
+      }
+    } catch (e) {
+      print("Excepción en login: $e");
+      return null;
     }
   }
 }

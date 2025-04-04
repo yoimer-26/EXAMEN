@@ -1,62 +1,56 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import 'package:provider/provider.dart';
+import '../controllers/auth_controller.dart';
 import 'home_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  void _login() async {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
-
-    final authService = AuthService();
-    final token = await authService.login(username, password);
-
-    if (token != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(token: token),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Usuario o contraseña incorrectos"),
-        ),
-      );
-    }
-  }
+class LoginScreen extends StatelessWidget {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Iniciar Sesión")),
+      appBar: AppBar(title: Text("Iniciar Sesión")),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: "Usuario"),
+              controller: usernameController,
+              decoration: InputDecoration(labelText: "Usuario"),
             ),
+            SizedBox(height: 10),
             TextField(
-              controller: _passwordController,
+              controller: passwordController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: "Contraseña"),
+              decoration: InputDecoration(labelText: "Contraseña"),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _login,
-              child: const Text("Iniciar Sesión"),
+              onPressed: () async {
+                String username = usernameController.text;
+                String password = passwordController.text;
+
+                bool success = await authController.login(username, password);
+                if (success) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen(token: authController.token ?? '')),
+
+
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Error en login. Verifica tus datos.")),
+                  );
+                }
+              },
+              child: authController.isLoading
+                  ? CircularProgressIndicator()
+                  : Text("Iniciar sesión"),
             ),
           ],
         ),

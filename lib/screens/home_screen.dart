@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/car_service.dart'; 
+import '../services/car_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final String token;
@@ -10,7 +10,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<dynamic> _carros = []; 
+  List<dynamic> _carros = [];
+  bool _cargando = true;
 
   @override
   void initState() {
@@ -18,16 +19,21 @@ class _HomeScreenState extends State<HomeScreen> {
     obtenerListaCarros();
   }
 
-  // Función para obtener los carros
   void obtenerListaCarros() async {
+    print("🔄 Cargando carros...");
     try {
       CarService carService = CarService();
       List<dynamic> carros = await carService.obtenerCarros(widget.token);
+
       setState(() {
         _carros = carros;
+        _cargando = false;
       });
     } catch (e) {
-      print('Error: $e');
+      print("❌ Error al obtener carros: $e");
+      setState(() {
+        _cargando = false;
+      });
     }
   }
 
@@ -35,26 +41,45 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Lista de Carros')),
-      body: Column(
-        children: [
-          const SizedBox(height: 10),
-          const Text(
-            'Lista de Carros',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _carros.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_carros[index]['nombre']),
-                  subtitle: Text('Modelo: ${_carros[index]['modelo']}'),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+      body: _cargando
+          ? const Center(child: CircularProgressIndicator())
+          : _carros.isEmpty
+              ? const Center(child: Text("No hay carros disponibles"))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(10),
+                  itemCount: _carros.length,
+                  itemBuilder: (context, index) {
+                    final carro = _carros[index];
+                    return Card(
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      child: ListTile(
+                        leading: carro['imagen'] != null &&
+                                carro['imagen'].toString().isNotEmpty
+                            ? Image.network(
+                                carro['imagen'],
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  print('❌ Error cargando imagen: $error');
+                                  return const Icon(Icons.electric_car,
+                                      color: Colors.green);
+                                },
+                              )
+                            : const Icon(Icons.electric_car,
+                                color: Colors.green),
+                        title: Text(
+                          carro['placa'] ?? "Sin placa",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          "Conductor: ${carro['conductor'] ?? 'Desconocido'}",
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

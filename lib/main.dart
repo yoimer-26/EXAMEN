@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'screens/login_screen.dart';
+import 'controllers/auth_controller.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => AuthController(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Carros Eléctricos',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const LoginScreen(),
-      debugShowCheckedModeBanner: false,
+      home: LoginScreen(),
     );
   }
 }
