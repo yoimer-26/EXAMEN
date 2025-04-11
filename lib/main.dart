@@ -1,23 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'screens/login_screen.dart';
-import 'controllers/auth_controller.dart';
+import 'screens/home_screen.dart';
+import 'screens/scanner_screen.dart';
+import 'screens/caro_lista_screen.dart';
+import 'screens/carros-detalles_screen.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => AuthController(),
-      child: MyApp(),
-    ),
-  );
+  runApp(const CarApp());
 }
 
-class MyApp extends StatelessWidget {
+class CarApp extends StatelessWidget {
+  const CarApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Carros Eléctricos',
-      home: LoginScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        scaffoldBackgroundColor: const Color(0xFFF4F4F4),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 2,
+        ),
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/qr_scanner': (context) => const QRScannerScreen(),
+        '/car_list': (context) => const CarListScreen(),
+        '/car_detail': (context) => const CarDetailScreen(),
+      },
     );
   }
 }

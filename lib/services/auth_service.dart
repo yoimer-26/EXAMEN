@@ -1,27 +1,20 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String _url = "https://carros-electricos.wiremockapi.cloud/auth";
+  static const String _keyIsLoggedIn = 'is_logged_in';
 
-  static Future<String?> login(String username, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse(_url),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"username": username, "password": password}),
-      );
+  static Future<void> login() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyIsLoggedIn, true);
+  }
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data["token"]; // Extrae solo el token
-      } else {
-        print("Error en login: ${response.body}"); 
-        return null; 
-      }
-    } catch (e) {
-      print("Excepción en login: $e");
-      return null;
-    }
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyIsLoggedIn, false);
+  }
+
+  static Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyIsLoggedIn) ?? false;
   }
 }
